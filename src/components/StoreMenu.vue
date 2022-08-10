@@ -73,6 +73,7 @@
             class="btn btn-primary"
             data-bs-toggle="modal"
             data-bs-target="#checkout-modal"
+            :class="{ disabled: !cartItems.length }"
           >
             訂餐
           </button>
@@ -155,12 +156,7 @@
           >
             取消
           </button>
-          <button
-            type="button"
-            class="btn btn-primary"
-            data-bs-dismiss="modal"
-            @click="handleSubmit"
-          >
+          <button type="button" class="btn btn-primary" @click="handleSubmit">
             確認訂餐
           </button>
         </div>
@@ -171,6 +167,8 @@
 
 <script>
 import googleApi from "../apis/googleSheet";
+import moment from "moment";
+moment.locale("zh-tw");
 
 export default {
   name: "StoreMenu",
@@ -302,14 +300,35 @@ export default {
     countProductPrice(item) {
       return item.itemNum * item.itemPrice;
     },
+    //將訂單寄給使用者
+    sendEmailToOrder() {
+      // return Email.send({
+      //   SecureToken: "ecbb5367-73f0-4e62-a2ca-b8b450b08092",
+      //   To: "gyurt32413@gmail.com",
+      //   From: "gyurt32413@gmail.com",
+      //   Subject: "This is the subject",
+      //   Body: "And this is the body",
+      // });
+    },
     //送出訂單
-    handleSubmit() {
-      if (!this.ordererName || !this.ordererEmail) {
-        alert("請填入相關資料");
-      } else {
-        this.cartItems.forEach((item) => {
-          console.log("item", item);
-        });
+    async handleSubmit() {
+      let items = "";
+      this.cartItems.forEach((item) => {
+        items += `${item.itemName}*${item.itemNum} `;
+      });
+      let order = {
+        name: this.ordererName,
+        mail: this.ordererEmail,
+        time: moment().format("lll"),
+        items,
+        totalPrice: this.countTotalPrice,
+      };
+      try {
+        const response = await googleApi.sendOrder(order);
+        this.sendEmailToOrder();
+        console.log(response);
+      } catch (error) {
+        console.log(error);
       }
     },
   },
