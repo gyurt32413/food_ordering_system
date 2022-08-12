@@ -23,8 +23,8 @@
               v-for="item in storeInfo.items"
               :key="item.itemId"
               v-show="item.category === currentCategory"
-              @click="addProductToCart(item)"
               class="product-item"
+              @click="addProductToCart(item)"
             >
               <div class="item-name">
                 {{ item.itemName }}
@@ -156,7 +156,12 @@
           >
             取消
           </button>
-          <button type="button" class="btn btn-primary" @click="handleSubmit">
+          <button
+            type="submit"
+            data-bs-dismiss="modal"
+            class="btn btn-primary"
+            @click="sendEmailToOrder()"
+          >
             確認訂餐
           </button>
         </div>
@@ -166,7 +171,7 @@
 </template>
 
 <script>
-import googleApi from "../apis/googleSheet";
+import googleApi from "../apis/googleAPI";
 import moment from "moment";
 moment.locale("zh-tw");
 
@@ -191,8 +196,8 @@ export default {
         //   itemNum: 1,
         // },
       ],
-      ordererName: "苟孟",
-      ordererEmail: "gyurt32413@gmail.com",
+      ordererName: "",
+      ordererEmail: "",
     };
   },
   created() {
@@ -302,15 +307,33 @@ export default {
     },
     //將訂單寄給使用者
     sendEmailToOrder() {
-      // return Email.send({
-      //   SecureToken: "ecbb5367-73f0-4e62-a2ca-b8b450b08092",
-      //   To: "gyurt32413@gmail.com",
-      //   From: "gyurt32413@gmail.com",
-      //   Subject: "This is the subject",
-      //   Body: "And this is the body",
-      // });
+      //檢查是否有填訂單資料
+      if (!this.ordererName || !this.ordererEmail) {
+        alert("請填入訂購人名稱及e-mail");
+        return;
+      }
+      let items = "";
+      this.cartItems.forEach((item) => {
+        items += `${item.itemName}*${item.itemNum} `;
+      });
+      let self = this;
+      googleApi
+        .sendEmail({
+          mail: this.ordererEmail,
+          orderInfo: items,
+        })
+        .done(function () {
+          console.log("success");
+          //當信箱正確時才會將訂單資料傳給googlesheet
+          self.handleSubmit();
+          alert("訂購成功!");
+        })
+        .fail(function () {
+          console.log("error");
+          alert("無法訂購餐點，請確認是否填入正確信箱");
+        });
     },
-    //送出訂單
+    //送出訂單至googlesheet
     async handleSubmit() {
       let items = "";
       this.cartItems.forEach((item) => {
@@ -320,12 +343,12 @@ export default {
         name: this.ordererName,
         mail: this.ordererEmail,
         time: moment().format("lll"),
+        store: this.storeInfo.storeName,
         items,
         totalPrice: this.countTotalPrice,
       };
       try {
         const response = await googleApi.sendOrder(order);
-        this.sendEmailToOrder();
         console.log(response);
       } catch (error) {
         console.log(error);
@@ -426,15 +449,13 @@ main {
 }
 
 .product-items {
-  display: flex;
+  margin-top: 10px;
   padding: 0;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 20px;
 }
 .product-item {
-  width: 250px;
-  margin-top: 10px;
   padding: 10px;
   border-radius: 10px;
   display: flex;
@@ -443,6 +464,11 @@ main {
   font-size: 20px;
   box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.2);
 }
+.blank {
+  flex: 1;
+  content: "";
+}
+
 .product-item:hover {
   cursor: pointer;
   background-color: rgb(185, 135, 135);

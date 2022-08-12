@@ -2,6 +2,7 @@
   <nav>
     <router-link to="/store1">50嵐</router-link>
     <router-link to="/store2">王哥肉丸</router-link>
+    <router-link to="/store3">鵝太郎</router-link>
   </nav>
   <router-view />
 </template>

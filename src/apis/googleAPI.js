@@ -17,14 +17,21 @@ export default {
   },
   sendOrder(data) {
     return $.ajax({
-      // 這邊用get type
       type: "post",
       // api url - google appscript 產出的 url
       url: "https://script.google.com/macros/s/AKfycbyhluk8hq_c24n_Azv4F53NFgHdQOuD2LugT-P80drNF4Y9zLk34_7ZKReOxJj7pMJv/exec",
       // 剛剛整理好的資料帶入
       data,
-      // 資料格式是JSON
-      dataType: "JSON",
+    });
+  },
+  sendEmail(data) {
+    return $.ajax({
+      // 這邊用get type
+      type: "post",
+      // api url - google appscript 產出的 url
+      url: "https://script.google.com/macros/s/AKfycbxoZ3DDxuh6PdwY0NfA7F5fyVfGT-zMC8RJiQeQGrCaxcM_t6pmKniZv0blw14B2z_7/exec",
+      // 剛剛整理好的資料帶入
+      data,
     });
   },
 };

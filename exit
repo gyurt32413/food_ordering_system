@@ -1,0 +1,29 @@
+[33mcommit 510c17db26d499e12e7602a07e145210a51ab8b9[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: gyurt32413 <gyurt32413@gmail.com>
+Date:   Wed Aug 10 16:20:25 2022 +0800
+
+    Complete send orders function by google apps script
+
+[33mcommit a10f44410d314a36a83fa87d2eefe8306486709b[m
+Author: gyurt32413 <gyurt32413@gmail.com>
+Date:   Thu Jul 28 22:03:21 2022 +0800
+
+    Complete shopping-cart
+
+[33mcommit 50ba05c9dcbdc1b6c983291fd40e3a2d9f29d57d[m
+Author: gyurt32413 <gyurt32413@gmail.com>
+Date:   Thu Jul 28 22:01:25 2022 +0800
+
+    Important bootstrap and bootstrap-icon
+
+[33mcommit 6c8180401e4b64364375d09219bc5b31ea06dc9c[m
+Author: gyurt32413 <gyurt32413@gmail.com>
+Date:   Fri Jul 15 22:54:37 2022 +0800
+
+    Import googlesheet API
+
+[33mcommit a5caebeb45f60fa65527441f053f22c5d687c61c[m
+Author: gyurt32413 <gyurt32413@gmail.com>
+Date:   Thu Jul 14 17:57:08 2022 +0800
+
+    Create project
