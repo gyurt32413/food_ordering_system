@@ -211,6 +211,12 @@ export default {
   },
   created() {
     this.fetchStoreInfo();
+    //重新整理時從localStorage取得購物車資料
+    const cartItems = JSON.parse(localStorage.getItem(this.$route.name));
+    this.cartItems = cartItems ? cartItems : [];
+  },
+  mounted() {
+    console.log(JSON.parse(localStorage.getItem(this.$route.name)));
   },
   computed: {
     // 計算購物車金額
@@ -230,6 +236,14 @@ export default {
       let totalNum = 0;
       this.cartItems.forEach((item) => (totalNum += item.itemNum));
       return totalNum;
+    },
+  },
+  watch: {
+    cartItems: {
+      handler: function () {
+        localStorage.setItem(this.$route.name, JSON.stringify(this.cartItems));
+      },
+      deep: true,
     },
   },
   methods: {
@@ -384,6 +398,7 @@ export default {
             icon: "success",
           });
           this.isLoading = false;
+          this.cartItems = [];
         }
       } catch (error) {
         console.log("error");
