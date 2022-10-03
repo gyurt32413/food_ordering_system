@@ -15,6 +15,11 @@ export default {
       `https://sheets.googleapis.com/v4/spreadsheets/1piyvpDX-TwZ3MiljL_42Gj3iZpGzr06abymAHciyUDo/values/${storeName}?alt=json&key=AIzaSyAe-zDjqngmdcB2SlOctNzf8RJWuBj--xU`
     );
   },
+  getAllStore() {
+    return axios.get(
+      `https://sheets.googleapis.com/v4/spreadsheets/1piyvpDX-TwZ3MiljL_42Gj3iZpGzr06abymAHciyUDo/values/total-store!A2:C?alt=json&key=AIzaSyAe-zDjqngmdcB2SlOctNzf8RJWuBj--xU`
+    );
+  },
   sendOrder(data) {
     return $.ajax({
       type: "post",

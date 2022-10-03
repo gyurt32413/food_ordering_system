@@ -3,6 +3,30 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 
-createApp(App).use(store).use(router).mount("#app");
+import "bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
-// https://sheets.googleapis.com/v4/spreadsheets/1piyvpDX-TwZ3MiljL_42Gj3iZpGzr06abymAHciyUDo/values/50嵐?alt=json&key=AIzaSyAe-zDjqngmdcB2SlOctNzf8RJWuBj--xU
+/* import the fontawesome core */
+import { library } from "@fortawesome/fontawesome-svg-core";
+
+/* import font awesome icon component */
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
+/* import specific icons */
+import {
+  faUserSecret,
+  faBagShopping,
+  faUtensils,
+} from "@fortawesome/free-solid-svg-icons";
+
+import { faCircleXmark } from "@fortawesome/free-regular-svg-icons";
+
+/* add icons to the library */
+library.add(faUserSecret, faUtensils, faCircleXmark, faBagShopping);
+
+createApp(App)
+  .use(store)
+  .use(router)
+  .component("font-awesome-icon", FontAwesomeIcon)
+  .mount("#app");
