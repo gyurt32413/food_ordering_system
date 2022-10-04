@@ -41,7 +41,7 @@
       </div>
     </div>
     <input type="checkbox" id="cart-toggle" />
-    <label class="cart-toggle-label" for="cart-toggle">
+    <label @click="toTop" class="cart-toggle-label" for="cart-toggle">
       <div class="total-cart-num">{{ totalCartNum }}</div>
       <font-awesome-icon class="bag-icon" icon="fa-solid fa-bag-shopping"
     /></label>
@@ -434,6 +434,10 @@ export default {
     cancelCart() {
       const checkbox = document.getElementById("cart-toggle");
       checkbox.checked = false;
+    },
+    //點擊購物車置頂頁面
+    toTop() {
+      window.scroll(0, 0);
     },
   },
 };
