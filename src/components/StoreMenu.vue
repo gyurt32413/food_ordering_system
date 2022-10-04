@@ -215,9 +215,6 @@ export default {
     const cartItems = JSON.parse(localStorage.getItem(this.$route.name));
     this.cartItems = cartItems ? cartItems : [];
   },
-  mounted() {
-    console.log(JSON.parse(localStorage.getItem(this.$route.name)));
-  },
   computed: {
     // 計算購物車金額
     countTotalPrice() {
