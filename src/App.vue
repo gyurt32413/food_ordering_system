@@ -1,22 +1,24 @@
 <template>
-  <nav class="nav-bar">
-    <div class="title">
-      <font-awesome-icon class="food-icon" icon="fa-solid fa-utensils" />
-      <h1>今天吃甚麼？</h1>
-    </div>
-    <router-link
-      v-for="store in selectedStore"
-      :key="store.router"
-      :to="'/' + store.router"
-      >{{ store.name }}</router-link
-    >
-  </nav>
-  <router-view />
-  <footer>
-    <div class="footer-container">
-      <span>Copyright © 2022-2022 今天吃甚麼？</span>
-    </div>
-  </footer>
+  <div style="display: flex; flex-direction: column; height: 100vh">
+    <nav class="nav-bar">
+      <div class="title">
+        <font-awesome-icon class="food-icon" icon="fa-solid fa-utensils" />
+        <h1>今天吃甚麼？</h1>
+      </div>
+      <router-link
+        v-for="store in selectedStore"
+        :key="store.router"
+        :to="'/' + store.router"
+        >{{ store.name }}</router-link
+      >
+    </nav>
+    <router-view />
+    <footer>
+      <div class="footer-container">
+        <span>Copyright © 2022-2022 今天吃甚麼？</span>
+      </div>
+    </footer>
+  </div>
 </template>
 
 <script>
@@ -163,7 +165,6 @@ meter {
 nav {
   padding-top: 10px;
   padding-bottom: 10px;
-  /* border: 1px solid #000; */
   display: flex;
   box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.08);
 }

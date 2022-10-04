@@ -445,9 +445,9 @@ ul {
   padding: 0;
 }
 main {
+  flex: 1;
   position: relative;
   width: 100%;
-  min-height: calc(100vh - 110px);
   display: flex;
 }
 .vendor-section {

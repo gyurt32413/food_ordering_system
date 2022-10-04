@@ -10,8 +10,8 @@
 
 <style scoped>
 .spinner {
+  flex: 1;
   padding-top: 100px;
-  min-height: calc(100vh - 110px);
 }
 
 .bouncing-loader {
