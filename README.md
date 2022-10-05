@@ -44,7 +44,7 @@
 ## 新增店家
 1. 在[googlesheet](https://docs.google.com/spreadsheets/d/1piyvpDX-TwZ3MiljL_42Gj3iZpGzr06abymAHciyUDo/edit#gid=1529696619)新增分頁(名稱為store-{數字英文})，店家的格式請參照store-one分頁
 2. 在total-store分頁新增新店家的路由及名稱
-3. 在本地專案router/index.js 新增路由(路由名稱需跟googlesheet分頁名稱相同)
+3. 在本地專案src/router/index.js 新增路由(路由名稱需跟googlesheet分頁名稱相同)
 ```
 {
     path: "/store3",
@@ -52,7 +52,7 @@
     component: () => import("../views/StoreThree.vue"),
 }
 ```
-4. 在views中新增對應路由的檔案
+4. 在src/views中新增對應路由的檔案
 ```
 <template>
   <StoreMenu />
