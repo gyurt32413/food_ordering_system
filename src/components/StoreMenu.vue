@@ -708,4 +708,10 @@ main {
     margin-right: 50px;
   }
 }
+
+@media screen and (min-width: 1080px) {
+  .food-picture-wrapper img {
+    width: 80%;
+  }
+}
 </style>
