@@ -2,12 +2,6 @@
   <StoreMenu />
 </template>
 
-<script>
+<script setup>
 import StoreMenu from "../components/StoreMenu.vue";
-
-export default {
-  components: {
-    StoreMenu,
-  },
-};
 </script>

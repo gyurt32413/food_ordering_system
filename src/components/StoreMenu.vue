@@ -184,7 +184,12 @@
   </div>
 </template>
 
-<script>
+<script setup>
+/*
+  import
+*/
+import { ref, computed, watch } from "vue";
+import { useRoute } from "vue-router";
 import googleApi from "../apis/googleAPI";
 import moment from "moment";
 import nonePicture from "../assets/food-picture.jpeg";
@@ -193,250 +198,236 @@ import SpinnerAnimation from "../components/SpinnerAnimation.vue";
 
 moment.locale("zh-tw");
 
-export default {
-  name: "StoreMenu",
-  components: {
-    SpinnerAnimation,
-  },
-  data() {
-    return {
-      categories: [],
-      storeInfo: {},
-      currentCategory: "",
-      cartItems: [],
-      ordererName: "",
-      ordererEmail: "",
-      isLoading: false,
-    };
-  },
-  created() {
-    this.fetchStoreInfo();
-    //重新整理時從localStorage取得購物車資料
-    const cartItems = JSON.parse(localStorage.getItem(this.$route.name));
-    this.cartItems = cartItems ? cartItems : [];
-  },
-  computed: {
-    // 計算購物車金額
-    countTotalPrice() {
-      let totalPrice = 0;
-      this.cartItems.forEach((item) => {
-        totalPrice += item.itemNum * item.itemPrice;
+const route = useRoute();
+let isLoading = ref(false);
+
+/* 
+  店家資料相關
+*/
+let storeInfo = ref({});
+let categories = ref([]);
+
+//  渲染店家各種資訊
+const fetchStoreInfo = async () => {
+  try {
+    isLoading.value = true;
+    const { data } = await googleApi.getStoreInfo(route.name);
+    //  取得店家資料
+    storeInfo.value.storeName = data.values[0][0];
+    storeInfo.value.phone = data.values[1][0];
+    storeInfo.value.address = data.values[2][0];
+    storeInfo.value.picture = data.values[3][0];
+    //  取得食物資料
+    let items = [];
+    let title = data.values[4];
+    for (let i = 5; i < data.values.length; i++) {
+      items.push({
+        [title[0]]: data.values[i][0],
+        [title[1]]: data.values[i][1],
+        [title[2]]: data.values[i][2],
+        [title[3]]: data.values[i][3],
       });
-      return totalPrice;
-    },
-    // 店家圖片顯示
-    storePicture() {
-      return this.storeInfo.picture ? this.storeInfo.picture : nonePicture;
-    },
-    //購物車餐點數量
-    totalCartNum() {
-      let totalNum = 0;
-      this.cartItems.forEach((item) => (totalNum += item.itemNum));
-      return totalNum;
-    },
-  },
-  watch: {
-    cartItems: {
-      handler: function () {
-        localStorage.setItem(this.$route.name, JSON.stringify(this.cartItems));
-      },
-      deep: true,
-    },
-  },
-  methods: {
-    // 渲染店家資料
-    async fetchStoreInfo() {
-      try {
-        this.isLoading = true;
-        const { data } = await googleApi.getStoreInfo(this.$route.name);
-        // 取得店家資料
-        this.storeInfo.storeName = data.values[0][0];
-        this.storeInfo.phone = data.values[1][0];
-        this.storeInfo.address = data.values[2][0];
-        this.storeInfo.picture = data.values[3][0];
+    }
 
-        // 取得食物資料
-        let items = [];
-        let title = data.values[4];
-        for (let i = 5; i < data.values.length; i++) {
-          items.push({
-            [title[0]]: data.values[i][0],
-            [title[1]]: data.values[i][1],
-            [title[2]]: data.values[i][2],
-            [title[3]]: data.values[i][3],
-          });
-        }
-
-        // 取得食物種類
-        items.forEach((item) => {
-          if (!this.categories.includes(item.category)) {
-            this.categories.push(item.category);
-          }
-        });
-
-        this.storeInfo.items = items;
-        this.isLoading = false;
-      } catch (error) {
-        console.log(error);
+    //  取得食物種類
+    items.forEach((item) => {
+      if (!categories.value.includes(item.category)) {
+        categories.value.push(item.category);
       }
-    },
+    });
+    storeInfo.value.items = items;
+    isLoading.value = false;
+  } catch (error) {
+    console.log(error);
+    isLoading.value = false;
+    swal({
+      text: "無法取得店家資訊，請稍後再試",
+      icon: "error",
+    });
+  }
+};
+fetchStoreInfo();
+//  店家圖片顯示
+const storePicture = computed(() => {
+  return storeInfo.value.picture ? storeInfo.value.picture : nonePicture;
+});
 
-    // 選取食物類別
-    changeCurrentCategory(category) {
-      this.currentCategory = category;
-    },
+/* 
+  購物車相關 
+*/
+let cartItems = ref([]);
+//  計算購物車餐點數量
+const totalCartNum = computed(() => {
+  let totalNum = 0;
+  cartItems.value.forEach((item) => (totalNum += item.itemNum));
+  return totalNum;
+});
 
-    // 選取餐點至購物車
-    addProductToCart(item) {
-      // 判定該餐點是否已在購物車
-      let cartIdArray = this.cartItems.map((property) => property.itemId);
-      let currentCartId = cartIdArray.indexOf(item.itemId);
-      // 若購物車不存在則新增餐點
-      if (currentCartId === -1) {
-        this.cartItems.push({
-          itemId: item.itemId,
-          itemName: item.itemName,
-          itemPrice: item.price,
-          itemNum: 1,
-        });
-        // 若購物車存在餐點數量+1
-      } else {
-        this.cartItems[currentCartId].itemNum++;
-      }
+//  計算購物車金額
+const countTotalPrice = computed(() => {
+  let totalPrice = 0;
+  cartItems.value.forEach((item) => {
+    totalPrice += item.itemNum * item.itemPrice;
+  });
+  return totalPrice;
+});
+
+//  購物車內容變動時更新至localStorage
+watch(
+  cartItems,
+  () => {
+    localStorage.setItem(route.name, JSON.stringify(cartItems.value));
+  },
+  { deep: true }
+);
+
+//  重新整理時從localStorage取得購物車資料
+cartItems.value = JSON.parse(localStorage.getItem(route.name));
+cartItems.value = cartItems.value ? cartItems.value : [];
+
+//  關閉購物車頁面
+const cancelCart = () => {
+  const checkbox = document.getElementById("cart-toggle");
+  checkbox.checked = false;
+};
+//  點擊購物車置頂頁面
+const toTop = () => {
+  window.scroll(0, 0);
+};
+
+/*
+  點餐相關 
+*/
+//  選取食物類別
+let currentCategory = ref("");
+const changeCurrentCategory = (category) => {
+  currentCategory.value = category;
+};
+
+//  選取餐點至購物車
+const addProductToCart = (item) => {
+  //  判定該餐點是否已在購物車
+  let cartIdArray = cartItems.value.map((property) => property.itemId);
+  let currentCartId = cartIdArray.indexOf(item.itemId);
+  //  若購物車不存在則新增餐點
+  if (currentCartId === -1) {
+    cartItems.value.push({
+      itemId: item.itemId,
+      itemName: item.itemName,
+      itemPrice: item.price,
+      itemNum: 1,
+    });
+    //  若購物車存在餐點數量+1
+  } else {
+    cartItems[currentCartId].itemNum++;
+  }
+  swal({
+    text: "餐點加入至購物車",
+    icon: "success",
+  });
+};
+
+//  刪除餐點
+const deleteProductFromCart = (itemId) => {
+  let cartIdArray = cartItems.value.map((property) => property.itemId);
+  let currentCartId = cartIdArray.indexOf(itemId);
+  cartItems.value.forEach((property) => {
+    if (property.itemId === itemId) {
+      cartItems.value.splice(currentCartId, 1);
+    }
+  });
+};
+
+//  add餐點數量
+const addProductNum = (itemId) => {
+  cartItems.value.forEach((property) => {
+    if (property.itemId === itemId) {
+      property.itemNum++;
+    }
+  });
+};
+//  minus餐點數量
+const minusProductNum = (itemId) => {
+  cartItems.value.forEach((property) => {
+    if (property.itemId === itemId) {
+      property.itemNum--;
+    }
+  });
+};
+//  計算單個餐點價錢
+const countProductPrice = (item) => {
+  return item.itemNum * item.itemPrice;
+};
+
+/* 
+  送出訂單相關
+*/
+let ordererName = ref("");
+let ordererEmail = ref("");
+//  將訂單寄給使用者
+const sendEmailToOrder = async () => {
+  //  檢查是否有填訂單資料
+  if (!ordererName.value || !ordererEmail.value) {
+    swal({
+      text: "請填入訂購人名稱及e-mail",
+      icon: "warning",
+    });
+    return;
+  }
+  let items = "";
+  cartItems.value.forEach((item) => {
+    items += `${item.itemName}*${item.itemNum} `;
+  });
+  isLoading.value = true;
+  try {
+    const response = await googleApi.sendEmail({
+      mail: ordererEmail.value,
+      orderInfo: items,
+    });
+    if (response === "完成") {
+      //  當信箱正確時才會將訂單資料傳給googlesheet
+      handleSubmit();
       swal({
-        text: "餐點加入至購物車",
+        text: "訂購成功!",
         icon: "success",
       });
-    },
+      isLoading.value = false;
+      cartItems.value = [];
+    }
+  } catch (error) {
+    console.log("error");
+    swal({
+      text: "無法訂購餐點，請確認是否填入正確信箱-mail",
+      icon: "error",
+    });
+    isLoading.value = false;
+  }
+};
 
-    // 刪除購物車餐點
-    deleteProductFromCart(itemId) {
-      let cartIdArray = this.cartItems.map((property) => property.itemId);
-      let currentCartId = cartIdArray.indexOf(itemId);
-      this.cartItems.forEach((property) => {
-        if (property.itemId === itemId) {
-          this.cartItems.splice(currentCartId, 1);
-        }
-      });
-    },
-
-    // add餐點數量
-    addProductNum(itemId) {
-      this.cartItems.forEach((property) => {
-        if (property.itemId === itemId) {
-          property.itemNum++;
-        }
-      });
-    },
-    // minus餐點數量
-    minusProductNum(itemId) {
-      this.cartItems.forEach((property) => {
-        if (property.itemId === itemId) {
-          property.itemNum--;
-        }
-      });
-    },
-    // 計算單個餐點價錢
-    countProductPrice(item) {
-      return item.itemNum * item.itemPrice;
-    },
-    //將訂單寄給使用者
-    // sendEmailToOrder() {
-    //   //檢查是否有填訂單資料
-    //   if (!this.ordererName || !this.ordererEmail) {
-    //     alert("請填入訂購人名稱及e-mail");
-    //     return;
-    //   }
-    //   let items = "";
-    //   this.cartItems.forEach((item) => {
-    //     items += `${item.itemName}*${item.itemNum} `;
-    //   });
-    //   let self = this;
-    //   googleApi
-    //     .sendEmail({
-    //       mail: this.ordererEmail,
-    //       orderInfo: items,
-    //     })
-    //     .done(function () {
-    //       console.log("success");
-    //       //當信箱正確時才會將訂單資料傳給googlesheet
-    //       self.handleSubmit();
-    //       alert("訂購成功!");
-    //     })
-    //     .fail(function () {
-    //       console.log("error");
-    //       alert("無法訂購餐點，請確認是否填入正確信箱");
-    //     });
-    // },
-    async sendEmailToOrder() {
-      //檢查是否有填訂單資料
-      if (!this.ordererName || !this.ordererEmail) {
-        swal({
-          text: "請填入訂購人名稱及e-mail",
-          icon: "warning",
-        });
-        return;
-      }
-      let items = "";
-      this.cartItems.forEach((item) => {
-        items += `${item.itemName}*${item.itemNum} `;
-      });
-      this.isLoading = true;
-      try {
-        const response = await googleApi.sendEmail({
-          mail: this.ordererEmail,
-          orderInfo: items,
-        });
-        if (response === "完成") {
-          //當信箱正確時才會將訂單資料傳給googlesheet
-          this.handleSubmit();
-          swal({
-            text: "訂購成功!",
-            icon: "success",
-          });
-          this.isLoading = false;
-          this.cartItems = [];
-        }
-      } catch (error) {
-        console.log("error");
-        swal({
-          text: "無法訂購餐點，請確認是否填入正確信箱-mail",
-          icon: "error",
-        });
-        this.isLoading = false;
-      }
-    },
-    //送出訂單至googlesheet
-    async handleSubmit() {
-      let items = "";
-      this.cartItems.forEach((item) => {
-        items += `${item.itemName}*${item.itemNum} `;
-      });
-      let order = {
-        name: this.ordererName,
-        mail: this.ordererEmail,
-        time: moment().format("lll"),
-        store: this.storeInfo.storeName,
-        items,
-        totalPrice: this.countTotalPrice,
-      };
-      try {
-        const response = await googleApi.sendOrder(order);
-        console.log(response);
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    //關閉購物車頁面
-    cancelCart() {
-      const checkbox = document.getElementById("cart-toggle");
-      checkbox.checked = false;
-    },
-    //點擊購物車置頂頁面
-    toTop() {
-      window.scroll(0, 0);
-    },
-  },
+//  送出訂單至googlesheet
+const handleSubmit = async () => {
+  let items = "";
+  cartItems.value.forEach((item) => {
+    items += `${item.itemName}*${item.itemNum} `;
+  });
+  let order = {
+    name: ordererName.value,
+    mail: ordererEmail.value,
+    time: moment().format("lll"),
+    store: storeInfo.value.storeName,
+    items,
+    totalPrice: countTotalPrice.value,
+  };
+  try {
+    const response = await googleApi.sendOrder(order);
+    console.log(response);
+  } catch (error) {
+    swal({
+      text: "無法訂購餐點，請稍後再試",
+      icon: "error",
+    });
+    console.log(error);
+  }
 };
 </script>
 

@@ -21,35 +21,32 @@
   </div>
 </template>
 
-<script>
+<script setup>
+/*
+  import
+*/
 import googleAPI from "./apis/googleAPI";
-export default {
-  name: "App",
-  data() {
-    return {
-      selectedStore: [],
-    };
-  },
-  created() {
-    this.getSelectedStore();
-  },
-  methods: {
-    async getSelectedStore() {
-      try {
-        const { data } = await googleAPI.getAllStore();
-        const filterData = data.values.filter((item) => item[2] === "TRUE");
-        filterData.forEach((item) => {
-          this.selectedStore.push({
-            router: item[0],
-            name: item[1],
-          });
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    },
-  },
+import { ref } from "vue";
+
+/*
+  取得店家資訊
+*/
+let selectedStore = ref([]);
+const getSelectedStore = async () => {
+  try {
+    const { data } = await googleAPI.getAllStore();
+    const filterData = data.values.filter((item) => item[2] === "TRUE");
+    filterData.forEach((item) => {
+      selectedStore.value.push({
+        router: item[0],
+        name: item[1],
+      });
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
+getSelectedStore();
 </script>
 
 <style>
