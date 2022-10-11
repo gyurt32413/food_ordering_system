@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkorder_system"]=self["webpackChunkorder_system"]||[]).push([[909],{23:function(e,r,t){t.r(r),t.d(r,{default:function(){return c}});var n=t(3396),s=t(1333),u={__name:"StoreOne",setup(e){return(e,r)=>((0,n.wg)(),(0,n.j4)(s.Z))}};const a=u;var c=a}}]);
+//# sourceMappingURL=909.950c923b.js.map
