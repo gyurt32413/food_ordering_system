@@ -710,8 +710,8 @@ main {
 }
 
 @media screen and (min-width: 1080px) {
-  .food-picture-wrapper img {
-    width: 80%;
+  .food-picture-wrapper {
+    height: 400px;
   }
 }
 </style>

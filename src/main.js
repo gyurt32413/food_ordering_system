@@ -19,12 +19,19 @@ import {
   faUserSecret,
   faBagShopping,
   faUtensils,
+  faArrowUpLong,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { faCircleXmark } from "@fortawesome/free-regular-svg-icons";
 
 /* add icons to the library */
-library.add(faUserSecret, faUtensils, faCircleXmark, faBagShopping);
+library.add(
+  faUserSecret,
+  faUtensils,
+  faCircleXmark,
+  faBagShopping,
+  faArrowUpLong
+);
 
 createApp(App)
   .use(store)
